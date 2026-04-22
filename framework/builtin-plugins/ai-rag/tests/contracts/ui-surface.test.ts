@@ -12,6 +12,7 @@ describe("ui surface registration", () => {
     expect(adminContributions.workspaces).toHaveLength(0);
     expect(adminContributions.pages.map((page) => page.route)).toContain("/admin/ai/memory");
     expect(adminContributions.pages.map((page) => page.route)).toContain("/admin/ai/retrieval");
+    expect(adminContributions.pages.map((page) => page.route)).toContain("/admin/tools/knowledge-pipeline-builder");
     expect(adminContributions.reports[0]?.route).toBe("/admin/reports/ai-retrieval");
   });
 });

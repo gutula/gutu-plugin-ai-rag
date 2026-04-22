@@ -37,6 +37,14 @@ export function AiRagAdminPage() {
                   <dd>{collection.sourcePlugin}</dd>
                 </div>
                 <div>
+                  <dt>Review</dt>
+                  <dd>{collection.reviewState}</dd>
+                </div>
+                <div>
+                  <dt>Trust</dt>
+                  <dd>{collection.trustScore}%</dd>
+                </div>
+                <div>
                   <dt>Documents</dt>
                   <dd>{documentCount}</dd>
                 </div>
@@ -52,7 +60,9 @@ export function AiRagAdminPage() {
             <div key={document.id} className="awb-table-row">
               <strong>{document.title}</strong>
               <span>{document.sourceKind}</span>
-              <span>{document.classification}</span>
+              <span>{document.reviewState}</span>
+              <span>{document.promotionState}</span>
+              <span>{document.freshnessStatus}</span>
               <span>{formatPlatformDateTime(document.updatedAt)}</span>
             </div>
           ))}

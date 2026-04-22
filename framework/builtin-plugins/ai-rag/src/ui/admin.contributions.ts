@@ -1,5 +1,6 @@
 import {
   defineAdminNav,
+  defineBuilder,
   defineCommand,
   definePage,
   defineReport,
@@ -9,12 +10,13 @@ import {
 } from "@platform/admin-contracts";
 
 import { AiRagAdminPage } from "./admin/main.page";
+import { KnowledgePipelineBuilderPage } from "./admin/knowledge-pipeline-builder.page";
 import { RetrievalDiagnosticsPage } from "./admin/retrieval.page";
 import { RetrievalHealthWidget } from "./admin/retrieval-health.widget";
 
 export const adminContributions: Pick<
   AdminContributionRegistry,
-  "workspaces" | "nav" | "pages" | "widgets" | "reports" | "commands" | "searchProviders"
+  "workspaces" | "nav" | "pages" | "widgets" | "reports" | "commands" | "searchProviders" | "builders"
 > = {
   workspaces: [],
   nav: [
@@ -35,6 +37,19 @@ export const adminContributions: Pick<
           icon: "search",
           to: "/admin/ai/retrieval",
           permission: "ai.memory.read"
+        }
+      ]
+    }),
+    defineAdminNav({
+      workspace: "tools",
+      group: "builders",
+      items: [
+        {
+          id: "tools.knowledge-pipeline-builder",
+          label: "Knowledge Pipeline Builder",
+          icon: "git-pull-request-arrow",
+          to: "/admin/tools/knowledge-pipeline-builder",
+          permission: "ai.knowledge-pipelines.write"
         }
       ]
     })
@@ -59,6 +74,27 @@ export const adminContributions: Pick<
       group: "knowledge",
       permission: "ai.memory.read",
       component: RetrievalDiagnosticsPage
+    }),
+    definePage({
+      id: "ai.knowledge-pipeline.builder.page",
+      kind: "builder",
+      route: "/admin/tools/knowledge-pipeline-builder",
+      label: "Knowledge Pipeline Builder",
+      workspace: "tools",
+      group: "builders",
+      permission: "ai.knowledge-pipelines.write",
+      component: KnowledgePipelineBuilderPage,
+      builderId: "knowledge-pipeline-builder"
+    })
+  ],
+  builders: [
+    defineBuilder({
+      id: "knowledge-pipeline-builder",
+      label: "Knowledge Pipeline Builder",
+      host: "admin",
+      route: "/admin/tools/knowledge-pipeline-builder",
+      permission: "ai.knowledge-pipelines.write",
+      mode: "embedded"
     })
   ],
   widgets: [
@@ -102,6 +138,13 @@ export const adminContributions: Pick<
       permission: "ai.memory.read",
       href: "/admin/ai/retrieval",
       keywords: ["retrieval", "citations", "grounding"]
+    }),
+    defineCommand({
+      id: "ai.open.knowledge-pipeline-builder",
+      label: "Open Knowledge Pipeline Builder",
+      permission: "ai.knowledge-pipelines.write",
+      href: "/admin/tools/knowledge-pipeline-builder",
+      keywords: ["knowledge", "pipeline", "builder"]
     })
   ],
   searchProviders: [

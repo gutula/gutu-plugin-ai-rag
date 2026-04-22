@@ -6,12 +6,14 @@
     "framework/builtin-plugins/*"
   ],
   "scripts": {
-    "build": "bun --cwd framework/builtin-plugins/ai-rag run build",
-    "typecheck": "bun --cwd framework/builtin-plugins/ai-rag run typecheck",
-    "lint": "bun --cwd framework/builtin-plugins/ai-rag run lint",
-    "test": "bun --cwd framework/builtin-plugins/ai-rag run test",
-    "test:contracts": "bun --cwd framework/builtin-plugins/ai-rag run test:contracts",
-    "test:unit": "bun --cwd framework/builtin-plugins/ai-rag run test:unit",
+    "build": "bun run --cwd framework/builtin-plugins/ai-rag build",
+    "typecheck": "bun run --cwd framework/builtin-plugins/ai-rag typecheck",
+    "lint": "bun run --cwd framework/builtin-plugins/ai-rag lint",
+    "test": "bun run --cwd framework/builtin-plugins/ai-rag test",
+    "test:contracts": "bun run --cwd framework/builtin-plugins/ai-rag test:contracts",
+    "test:integration": "bun run --cwd framework/builtin-plugins/ai-rag test:integration",
+    "test:migrations": "bun run --cwd framework/builtin-plugins/ai-rag test:migrations",
+    "test:unit": "bun run --cwd framework/builtin-plugins/ai-rag test:unit",
     "docs:summary": "node scripts/docs-summary.mjs",
     "docs:check": "node scripts/docs-check.mjs"
   }

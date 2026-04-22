@@ -1,0 +1,93 @@
+import { describe, expect, it } from "bun:test";
+import { getTableColumns } from "drizzle-orm";
+
+import {
+  knowledgePipelines,
+  memoryCandidates,
+  memoryCollections,
+  memoryDocuments,
+  retrievalDiagnostics
+} from "../../db/schema";
+
+describe("ai-rag schema coverage", () => {
+  it("captures governed memory, freshness, and retrieval diagnostic columns", () => {
+    expect(Object.keys(getTableColumns(memoryCollections))).toEqual([
+      "id",
+      "tenantId",
+      "label",
+      "classification",
+      "sourcePlugin",
+      "reviewState",
+      "trustScore",
+      "freshnessWindowHours",
+      "ownerDepartment",
+      "sourceBindingCount",
+      "documentCount",
+      "updatedAt"
+    ]);
+    expect(Object.keys(getTableColumns(memoryDocuments))).toEqual([
+      "id",
+      "tenantId",
+      "collectionId",
+      "title",
+      "sourcePlugin",
+      "sourceObjectId",
+      "sourceKind",
+      "classification",
+      "reviewState",
+      "promotionState",
+      "trustScore",
+      "freshnessWindowHours",
+      "freshnessStatus",
+      "provenanceUri",
+      "lastReviewedAt",
+      "promotedAt",
+      "expiresAt",
+      "updatedAt"
+    ]);
+    expect(Object.keys(getTableColumns(retrievalDiagnostics))).toEqual([
+      "id",
+      "tenantId",
+      "runId",
+      "workflowInstanceId",
+      "query",
+      "citationCount",
+      "freshCitationCount",
+      "staleCitationCount",
+      "reviewCoverage",
+      "degraded",
+      "weakestSourceId",
+      "createdAt"
+    ]);
+    expect(Object.keys(getTableColumns(knowledgePipelines))).toEqual([
+      "id",
+      "tenantId",
+      "label",
+      "status",
+      "collectionId",
+      "sourceConnectorId",
+      "freshnessSlaHours",
+      "trustPolicy",
+      "lastRunAt",
+      "nextRunAt",
+      "lastDiagnosticId",
+      "updatedAt"
+    ]);
+    expect(Object.keys(getTableColumns(memoryCandidates))).toEqual([
+      "id",
+      "tenantId",
+      "documentId",
+      "targetCollectionId",
+      "sourceConnectorId",
+      "reviewState",
+      "status",
+      "trustScore",
+      "freshnessStatus",
+      "replayRunId",
+      "diagnosticId",
+      "discoveredAt",
+      "promotedAt",
+      "updatedAt"
+    ]);
+  });
+});

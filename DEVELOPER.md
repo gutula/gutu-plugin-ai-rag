@@ -2,7 +2,7 @@
 
 Tenant-safe memory collections, retrieval diagnostics, and grounded knowledge pipelines.
 
-**Maturity Tier:** `Baseline`
+**Maturity Tier:** `Hardened`
 
 ## Purpose And Architecture Role
 
@@ -69,8 +69,11 @@ Provides tenant-safe retrieval, memory collection management, and the evidence p
 | Action | `ai.memory.ingest` | Permission: `ai.memory.ingest` | Idempotent<br>Audited |
 | Action | `ai.memory.retrieve` | Permission: `ai.memory.read` | Idempotent |
 | Action | `ai.memory.reindex` | Permission: `ai.memory.reindex` | Idempotent<br>Audited |
+| Action | `ai.memory.review` | Permission: `ai.memory.review` | Idempotent<br>Audited |
+| Action | `ai.memory.promote` | Permission: `ai.memory.promote` | Non-idempotent<br>Audited |
 | Resource | `ai.memory-collections` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `label`, `classification`, `sourcePlugin`, `documentCount`, `updatedAt` |
 | Resource | `ai.memory-documents` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `title`, `sourceKind`, `classification`, `updatedAt` |
+| Resource | `ai.retrieval-diagnostics` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `runId`, `workflowInstanceId`, `degraded`, `reviewCoverage`, `capturedAt` |
 
 
 
@@ -91,7 +94,7 @@ This plugin should be integrated through **explicit commands/actions, resources,
 - No standalone plugin-owned lifecycle event feed is exported today.
 - No plugin-owned job catalog is exported today.
 - No plugin-owned workflow catalog is exported today.
-- Recommended composition pattern: invoke actions, read resources, then let the surrounding Gutu command/event/job runtime handle downstream automation.
+- Recommended composition pattern: invoke actions, read resources, then feed retrieval diagnostics and promotion state into the surrounding AI, workflow, and company-pack runtime.
 
 ## Storage, Schema, And Migration Notes
 
@@ -106,6 +109,7 @@ The plugin does not export a dedicated SQL helper module today. Treat the schema
 
 - Action inputs can fail schema validation or permission evaluation before any durable mutation happens.
 - If downstream automation is needed, the host must add it explicitly instead of assuming this plugin emits jobs.
+- Promotion attempts should fail closed when review or freshness requirements are not met.
 - There is no separate lifecycle-event feed to rely on today; do not build one implicitly from internal details.
 - Schema-affecting changes need extra care because there is no dedicated migration lane yet.
 
@@ -172,8 +176,8 @@ console.log("action", ingestMemoryDocumentAction.id);
 | Test | Yes | `bun run test` |
 | Unit | Yes | 2 file(s) |
 | Contracts | Yes | 1 file(s) |
-| Integration | No | No integration files found |
-| Migrations | No | No migration files found |
+| Integration | Yes | 1 file(s) |
+| Migrations | Yes | 1 file(s) |
 
 ### Verification commands
 
@@ -182,6 +186,8 @@ console.log("action", ingestMemoryDocumentAction.id);
 - `bun run lint`
 - `bun run test`
 - `bun run test:contracts`
+- `bun run test:integration`
+- `bun run test:migrations`
 - `bun run test:unit`
 - `bun run docs:check`
 
@@ -189,25 +195,23 @@ console.log("action", ingestMemoryDocumentAction.id);
 
 ### Current truth
 
-- Exports 3 governed actions: `ai.memory.ingest`, `ai.memory.retrieve`, `ai.memory.reindex`.
-- Owns 2 resource contracts: `ai.memory-collections`, `ai.memory-documents`.
-- Adds richer admin workspace contributions on top of the base UI surface.
+- Exports 5 governed actions: `ai.memory.ingest`, `ai.memory.retrieve`, `ai.memory.reindex`, `ai.memory.review`, `ai.memory.promote`.
+- Owns 3 resource contracts: `ai.memory-collections`, `ai.memory-documents`, `ai.retrieval-diagnostics`.
+- Adds richer admin workspace contributions on top of the base UI surface with trust, freshness, review, and retrieval-diagnostic visibility.
 - Defines a durable data schema contract even though no explicit SQL helper module is exported.
 
 ### Current gaps
 
-- No dedicated integration test lane is exported in this repo today; validation currently leans on build, lint, typecheck, and test lanes.
-- The plugin owns durable data state, but it does not yet ship a dedicated migration verification lane in this repo.
-- No standalone plugin-owned event, job, or workflow catalog is exported yet; compose it through actions, resources, and the surrounding Gutu runtime.
+- Cross-repo workspace bootstrap is still required before the package can run end-to-end verification lanes in isolation.
+- The repo validates schema shape and governed retrieval behavior, but it still does not emit first-party SQL migration files from this package.
+- Connector breadth remains intentionally narrow while freshness and provenance contracts stabilize.
 
 ### Recommended next
 
+- Add emitted SQL migration assets and rollback helpers alongside the current schema-verification lane.
+- Broaden the integration matrix beyond the current governed retrieval and replay-linked diagnostic path.
 - Add more ingestion and connector breadth only after the current retrieval contracts remain stable under production load.
 - Deepen operator visibility into collection freshness, ingestion failures, and retrieval quality.
-- Add deeper provider, persistence, or evaluation integrations only where the shipped control-plane contracts already prove stable.
-- Expand operator diagnostics and release gating where the current lifecycle already exposes strong evidence paths.
-- Add targeted integration coverage once the current lifecycle path is stable enough to benefit from end-to-end assertions.
-- Add explicit migration or rollback coverage if this domain becomes more operationally sensitive.
 - Promote important downstream reactions into explicit commands, jobs, or workflow steps instead of relying on implicit coupling.
 
 ### Later / optional
