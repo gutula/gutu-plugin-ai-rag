@@ -38,6 +38,8 @@ Provides tenant-safe retrieval, memory collection management, and the evidence p
 | Package Name | `@plugins/ai-rag` |
 | Manifest ID | `ai-rag` |
 | Display Name | AI RAG |
+| Domain Group | AI Systems |
+| Default Category | AI & Automation / Retrieval & Knowledge |
 | Version | `0.1.0` |
 | Kind | `ai-pack` |
 | Trust Tier | `first-party` |
@@ -70,10 +72,14 @@ Provides tenant-safe retrieval, memory collection management, and the evidence p
 | Action | `ai.memory.retrieve` | Permission: `ai.memory.read` | Idempotent |
 | Action | `ai.memory.reindex` | Permission: `ai.memory.reindex` | Idempotent<br>Audited |
 | Action | `ai.memory.review` | Permission: `ai.memory.review` | Idempotent<br>Audited |
-| Action | `ai.memory.promote` | Permission: `ai.memory.promote` | Non-idempotent<br>Audited |
-| Resource | `ai.memory-collections` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `label`, `classification`, `sourcePlugin`, `documentCount`, `updatedAt` |
-| Resource | `ai.memory-documents` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `title`, `sourceKind`, `classification`, `updatedAt` |
-| Resource | `ai.retrieval-diagnostics` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `runId`, `workflowInstanceId`, `degraded`, `reviewCoverage`, `capturedAt` |
+| Action | `ai.memory.promote` | Permission: `ai.memory.promote` | Idempotent<br>Audited |
+| Action | `ai.knowledge-pipelines.upsert` | Permission: `ai.knowledge-pipelines.write` | Idempotent<br>Audited |
+| Action | `ai.memory-candidates.promote` | Permission: `ai.memory-candidates.promote` | Idempotent<br>Audited |
+| Resource | `ai.memory-collections` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `label`, `classification`, `sourcePlugin`, `reviewState`, `trustScore`, `freshnessWindowHours`, `documentCount`, `updatedAt` |
+| Resource | `ai.memory-documents` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `title`, `sourcePlugin`, `sourceKind`, `classification`, `reviewState`, `promotionState`, `trustScore`, `freshnessStatus`, `updatedAt` |
+| Resource | `ai.retrieval-diagnostics` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `query`, `citationCount`, `staleCitationCount`, `reviewCoverage`, `degraded`, `createdAt` |
+| Resource | `ai.knowledge-pipelines` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `label`, `status`, `collectionId`, `sourceConnectorId`, `freshnessSlaHours`, `trustPolicy`, `updatedAt` |
+| Resource | `ai.memory-candidates` | Portal disabled | Admin auto-CRUD enabled<br>Fields: `documentId`, `targetCollectionId`, `reviewState`, `status`, `trustScore`, `freshnessStatus`, `updatedAt` |
 
 
 
@@ -94,14 +100,14 @@ This plugin should be integrated through **explicit commands/actions, resources,
 - No standalone plugin-owned lifecycle event feed is exported today.
 - No plugin-owned job catalog is exported today.
 - No plugin-owned workflow catalog is exported today.
-- Recommended composition pattern: invoke actions, read resources, then feed retrieval diagnostics and promotion state into the surrounding AI, workflow, and company-pack runtime.
+- Recommended composition pattern: invoke actions, read resources, then let the surrounding Gutu command/event/job runtime handle downstream automation.
 
 ## Storage, Schema, And Migration Notes
 
 - Database compatibility: `postgres`, `sqlite`
 - Schema file: `framework/builtin-plugins/ai-rag/db/schema.ts`
 - SQL helper file: `framework/builtin-plugins/ai-rag/src/postgres.ts`
-- Migration lane present: No
+- Migration lane present: Yes
 
 The plugin does not export a dedicated SQL helper module today. Treat the schema and resources as the durable contract instead of inventing undocumented SQL behavior.
 
@@ -109,9 +115,8 @@ The plugin does not export a dedicated SQL helper module today. Treat the schema
 
 - Action inputs can fail schema validation or permission evaluation before any durable mutation happens.
 - If downstream automation is needed, the host must add it explicitly instead of assuming this plugin emits jobs.
-- Promotion attempts should fail closed when review or freshness requirements are not met.
 - There is no separate lifecycle-event feed to rely on today; do not build one implicitly from internal details.
-- Schema-affecting changes need extra care because there is no dedicated migration lane yet.
+- Schema regressions are expected to show up in the migration lane and should block shipment.
 
 ## Mermaid Flows
 
@@ -195,23 +200,22 @@ console.log("action", ingestMemoryDocumentAction.id);
 
 ### Current truth
 
-- Exports 5 governed actions: `ai.memory.ingest`, `ai.memory.retrieve`, `ai.memory.reindex`, `ai.memory.review`, `ai.memory.promote`.
-- Owns 3 resource contracts: `ai.memory-collections`, `ai.memory-documents`, `ai.retrieval-diagnostics`.
-- Adds richer admin workspace contributions on top of the base UI surface with trust, freshness, review, and retrieval-diagnostic visibility.
+- Exports 7 governed actions: `ai.memory.ingest`, `ai.memory.retrieve`, `ai.memory.reindex`, `ai.memory.review`, `ai.memory.promote`, `ai.knowledge-pipelines.upsert`, `ai.memory-candidates.promote`.
+- Owns 5 resource contracts: `ai.memory-collections`, `ai.memory-documents`, `ai.retrieval-diagnostics`, `ai.knowledge-pipelines`, `ai.memory-candidates`.
+- Adds richer admin workspace contributions on top of the base UI surface.
 - Defines a durable data schema contract even though no explicit SQL helper module is exported.
 
 ### Current gaps
 
-- Cross-repo workspace bootstrap is still required before the package can run end-to-end verification lanes in isolation.
-- The repo validates schema shape and governed retrieval behavior, but it still does not emit first-party SQL migration files from this package.
-- Connector breadth remains intentionally narrow while freshness and provenance contracts stabilize.
+- No standalone plugin-owned event, job, or workflow catalog is exported yet; compose it through actions, resources, and the surrounding Gutu runtime.
+- The repo does not yet export a domain parity catalog with owned entities, reports, settings surfaces, and exception queues.
 
 ### Recommended next
 
-- Add emitted SQL migration assets and rollback helpers alongside the current schema-verification lane.
-- Broaden the integration matrix beyond the current governed retrieval and replay-linked diagnostic path.
 - Add more ingestion and connector breadth only after the current retrieval contracts remain stable under production load.
 - Deepen operator visibility into collection freshness, ingestion failures, and retrieval quality.
+- Add deeper provider, persistence, or evaluation integrations only where the shipped control-plane contracts already prove stable.
+- Expand operator diagnostics and release gating where the current lifecycle already exposes strong evidence paths.
 - Promote important downstream reactions into explicit commands, jobs, or workflow steps instead of relying on implicit coupling.
 
 ### Later / optional

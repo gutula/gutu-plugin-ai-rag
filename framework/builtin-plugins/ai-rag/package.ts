@@ -5,6 +5,12 @@ export default definePackage({
   kind: "ai-pack",
   version: "0.1.0",
   displayName: "AI RAG",
+  defaultCategory: {
+    id: "ai_automation",
+    label: "AI & Automation",
+    subcategoryId: "retrieval_knowledge",
+    subcategoryLabel: "Retrieval & Knowledge"
+  },
   description: "Tenant-safe memory collections, retrieval diagnostics, and grounded knowledge pipelines.",
   extends: ["ai-core"],
   dependsOn: ["ai-core", "knowledge-core", "jobs-core"],

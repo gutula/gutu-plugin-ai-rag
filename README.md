@@ -6,7 +6,7 @@
 
 Tenant-safe memory collections, retrieval diagnostics, and grounded knowledge pipelines.
 
-![Maturity: Hardened](https://img.shields.io/badge/Maturity-Hardened-2563eb) ![Verification: Build+Typecheck+Lint+Test+Contracts](https://img.shields.io/badge/Verification-Build%2BTypecheck%2BLint%2BTest%2BContracts-6b7280) ![DB: postgres+sqlite](https://img.shields.io/badge/DB-postgres%2Bsqlite-2563eb) ![Integration Model: Actions+Resources+UI](https://img.shields.io/badge/Integration%20Model-Actions%2BResources%2BUI-2563eb)
+![Maturity: Hardened](https://img.shields.io/badge/Maturity-Hardened-2563eb) ![Verification: Build+Typecheck+Lint+Test+Contracts+Migrations+Integration](https://img.shields.io/badge/Verification-Build%2BTypecheck%2BLint%2BTest%2BContracts%2BMigrations%2BIntegration-2563eb) ![DB: postgres+sqlite](https://img.shields.io/badge/DB-postgres%2Bsqlite-2563eb) ![Integration Model: Actions+Resources+Jobs+UI](https://img.shields.io/badge/Integration%20Model-Actions%2BResources%2BJobs%2BUI-2563eb)
 
 ## Part Of The Gutu Stack
 
@@ -14,6 +14,7 @@ Tenant-safe memory collections, retrieval diagnostics, and grounded knowledge pi
 | --- | --- |
 | Repo kind | First-party plugin |
 | Domain group | AI Systems |
+| Default category | AI & Automation / Retrieval & Knowledge |
 | Primary focus | retrieval, memory collections, grounding diagnostics |
 | Best when | You need a governed domain boundary with explicit contracts and independent release cadence. |
 | Composes through | Actions+Resources+Jobs+UI |
@@ -25,23 +26,24 @@ Tenant-safe memory collections, retrieval diagnostics, and grounded knowledge pi
 
 Provides tenant-safe retrieval, memory collection management, and the evidence path for grounded AI responses.
 
-- Exports 5 governed actions: `ai.memory.ingest`, `ai.memory.retrieve`, `ai.memory.reindex`, `ai.memory.review`, `ai.memory.promote`.
-- Owns 3 resource contracts: `ai.memory-collections`, `ai.memory-documents`, `ai.retrieval-diagnostics`.
-- Adds richer admin workspace contributions with freshness, trust, review, and retrieval-diagnostic visibility.
+- Exports 7 governed actions: `ai.memory.ingest`, `ai.memory.retrieve`, `ai.memory.reindex`, `ai.memory.review`, `ai.memory.promote`, `ai.knowledge-pipelines.upsert`, `ai.memory-candidates.promote`.
+- Owns 5 resource contracts: `ai.memory-collections`, `ai.memory-documents`, `ai.retrieval-diagnostics`, `ai.knowledge-pipelines`, `ai.memory-candidates`.
+- Adds richer admin workspace contributions on top of the base UI surface.
 - Defines a durable data schema contract even though no explicit SQL helper module is exported.
 
 ## Maturity
 
 **Maturity Tier:** `Hardened`
 
-This tier is justified because unit, contract, integration, and migration coverage now exist, and the retrieval layer exports governed provenance, freshness, review, and promotion contracts.
+This tier is justified because unit coverage exists, contract coverage exists, integration coverage exists, and migration coverage exists.
 
 ## Verified Capability Summary
 
-- Group: **AI Systems**
-- Verification surface: **Build+Typecheck+Lint+Test+Contracts+Integration+Migrations**
-- Tests discovered: **5** total files across unit, contract, integration, and migration lanes
-- Integration model: **Actions+Resources+UI**
+- Domain group: **AI Systems**
+- Default category: **AI & Automation / Retrieval & Knowledge**
+- Verification surface: **Build+Typecheck+Lint+Test+Contracts+Migrations+Integration**
+- Tests discovered: **5** total files across unit, contract, integration, migration lanes
+- Integration model: **Actions+Resources+Jobs+UI**
 - Database support: **postgres + sqlite**
 
 ## Dependency And Compatibility Summary
@@ -56,17 +58,23 @@ This tier is justified because unit, contract, integration, and migration covera
 | Provided Capabilities | `ai.memory`, `ai.retrieval` |
 | Runtime | bun>=1.3.12 |
 | Database | postgres, sqlite |
-| Integration Model | Actions+Resources+UI |
+| Integration Model | Actions+Resources+Jobs+UI |
 
 ## Capability Matrix
 
 | Surface | Count | Details |
 | --- | --- | --- |
-| Actions | 5 | `ai.memory.ingest`, `ai.memory.retrieve`, `ai.memory.reindex`, `ai.memory.review`, `ai.memory.promote` |
-| Resources | 3 | `ai.memory-collections`, `ai.memory-documents`, `ai.retrieval-diagnostics` |
+| Actions | 7 | `ai.memory.ingest`, `ai.memory.retrieve`, `ai.memory.reindex`, `ai.memory.review`, `ai.memory.promote`, `ai.knowledge-pipelines.upsert`, `ai.memory-candidates.promote` |
+| Resources | 5 | `ai.memory-collections`, `ai.memory-documents`, `ai.retrieval-diagnostics`, `ai.knowledge-pipelines`, `ai.memory-candidates` |
 | Jobs | 0 | No job catalog exported |
 | Workflows | 0 | No workflow catalog exported |
-| UI | Present | base UI surface, admin contributions, retrieval health widgets |
+| UI | Present | base UI surface, admin contributions |
+| Owned Entities | 0 | No explicit domain catalog yet |
+| Reports | 0 | No explicit report catalog yet |
+| Exception Queues | 0 | No explicit exception queues yet |
+| Operational Scenarios | 0 | No explicit operational scenario matrix yet |
+| Settings Surfaces | 0 | No explicit settings surface catalog yet |
+| ERPNext Refs | 0 | No direct ERPNext reference mapping declared |
 
 ## Quick Start For Integrators
 
@@ -106,10 +114,10 @@ Use the root repo scripts for day-to-day work **after the workspace is bootstrap
 
 ## Recommended Next Milestones
 
-- Add emitted SQL migration assets and rollback helpers alongside the current schema-verification lane.
-- Broaden the integration matrix beyond the current governed retrieval lifecycle and replay-linked diagnostic path.
 - Add more ingestion and connector breadth only after the current retrieval contracts remain stable under production load.
 - Deepen operator visibility into collection freshness, ingestion failures, and retrieval quality.
+- Add deeper provider, persistence, or evaluation integrations only where the shipped control-plane contracts already prove stable.
+- Expand operator diagnostics and release gating where the current lifecycle already exposes strong evidence paths.
 - Promote important downstream reactions into explicit commands, jobs, or workflow steps instead of relying on implicit coupling.
 
 ## More Docs
