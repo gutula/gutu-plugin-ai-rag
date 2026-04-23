@@ -54,6 +54,11 @@ Provides tenant-safe retrieval, memory collection management, and the evidence p
 | Field | Value |
 | --- | --- |
 | Depends On | `ai-core`, `knowledge-core`, `jobs-core` |
+| Recommended Plugins | None |
+| Capability Enhancing | None |
+| Integration Only | None |
+| Suggested Packs | None |
+| Standalone Supported | Yes |
 | Requested Capabilities | `ui.register.admin`, `api.rest.mount`, `data.write.ai`, `jobs.execute.ai`, `ai.tool.execute` |
 | Provides Capabilities | `ai.memory`, `ai.retrieval` |
 | Owns Data | `ai.memory-collections`, `ai.memory-documents` |
